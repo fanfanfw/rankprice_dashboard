@@ -1,0 +1,5 @@
+cars_backup.sql
+
+__pycache__/
+
+migrations/

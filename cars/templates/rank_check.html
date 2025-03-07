@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Harga Mobil</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+</head>
+<body class="container mt-4">
+
+    <h2 class="mb-4">Cek Ranking Harga Mobil</h2>
+
+    <form id="priceRankForm" class="mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <label for="brand" class="form-label">Brand</label>
+                <input type="text" class="form-control" id="brand" required>
+            </div>
+            <div class="col-md-4">
+                <label for="model" class="form-label">Model</label>
+                <input type="text" class="form-control" id="model" required>
+            </div>
+            <div class="col-md-4">
+                <label for="variant" class="form-label">Variant</label>
+                <input type="text" class="form-control" id="variant" required>
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <label for="price" class="form-label">Harga</label>
+                <input type="number" class="form-control" id="price" required>
+            </div>
+            <div class="col-md-4">
+                <label for="millage" class="form-label">Millage (Km)</label>
+                <input type="number" class="form-control" id="millage" required>
+            </div>
+            <div class="col-md-4">
+                <label for="year" class="form-label">Tahun</label>
+                <input type="number" class="form-control" id="year" required>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Cek Ranking</button>
+    </form>
+
+    <div id="result" class="alert alert-info d-none"></div>
+
+    <h3 class="mt-4">Top 5 Listings</h3>
+    <table id="top5Table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Price</th>
+                <th>Millage</th>
+                <th>Year</th>
+                <th>Variant</th>
+                <th>Source</th>
+                <th>Rank</th>
+            </tr>
+        </thead>
+    </table>
+
+    <h3 class="mt-4">Bottom 5 Listings</h3>
+    <table id="bottom5Table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Price</th>
+                <th>Millage</th>
+                <th>Year</th>
+                <th>Variant</th>
+                <th>Source</th>
+                <th>Rank</th>
+            </tr>
+        </thead>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#priceRankForm").submit(function (event) {
+                event.preventDefault();
+
+                let requestData = {
+                    brand: $("#brand").val(),
+                    model: $("#model").val(),
+                    variant: $("#variant").val(),
+                    price: $("#price").val(),
+                    millage: $("#millage").val(),
+                    year: $("#year").val()
+                };
+
+                $.ajax({
+                    url: "/cars/price_rank/",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(requestData),
+                    success: function (response) {
+                        $("#result").removeClass("d-none").html(`
+                            <strong>Ranking Anda:</strong> ${response.ranking} dari ${response.total_listings} listings.
+                        `);
+
+                        // Update DataTables dengan data baru
+                        $("#top5Table").DataTable({
+                            destroy: true,
+                            data: response.top_5,
+                            columns: [
+                                { data: "id" },
+                                { data: "price" },
+                                { data: "millage" },
+                                { data: "year" },
+                                { data: "variant" },
+                                { data: "source" },
+                                { data: "rank" }
+                            ]
+                        });
+
+                        $("#bottom5Table").DataTable({
+                            destroy: true,
+                            data: response.bottom_5,
+                            columns: [
+                                { data: "id" },
+                                { data: "price" },
+                                { data: "millage" },
+                                { data: "year" },
+                                { data: "variant" },
+                                { data: "source" },
+                                { data: "rank" }
+                            ]
+                        });
+                    },
+                    error: function (xhr) {
+                        alert("Terjadi kesalahan: " + xhr.responseJSON.error);
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>

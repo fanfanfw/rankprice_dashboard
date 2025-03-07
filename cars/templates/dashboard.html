@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky">
+                <h5 class="p-3">Cek Ranking</h5>
+                <form id="rankingForm">
+                    <div class="mb-2">
+                        <label>Brand:</label>
+                        <select id="rankingBrand" class="form-select">
+                            <option value="">Select Brand</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Model:</label>
+                        <select id="rankingModel" class="form-select" disabled>
+                            <option value="">Select Model</option>
+                        </select>
+                    </div>
+                    <div class="mb-2">
+                        <label>Price:</label>
+                        <input type="text" id="rankingPrice" class="form-control" placeholder="Masukkan harga">
+                    </div>
+                    <div class="mb-2">
+                        <label>Millage:</label>
+                        <input type="text" id="rankingMillage" class="form-control" placeholder="Masukkan millage">
+                    </div>
+                    <div class="mb-2">
+                        <label>Year:</label>
+                        <input type="number" id="rankingYear" class="form-control" placeholder="Masukkan tahun">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Cek Ranking</button>
+                </form>
+                
+                <label class="mt-5">Sync Data MudahMY</label>
+                <button class="btn btn-success w-100 mt-2" id="btnSyncMudahmy">Sync Mudahmy</button>
+                <label class="mt-5">Sync Data CarlistMY</label>
+                <button class="btn btn-success w-100 mt-2" id="btnSyncCarlist">Sync Carlist</button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <h2 class="mt-4">Dashboard Listing Mobil</h2>
+
+            <!-- Filter untuk Tabel -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <label>Brand:</label>
+                    <select id="filterBrand" class="form-select">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Model:</label>
+                    <select id="filterModel" class="form-select">
+                        <option value="">All</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label>Source:</label>
+                    <select id="filterSource" class="form-select">
+                        <option value="">All</option>
+                        <option value="mudahmy">MudahMy</option>
+                        <option value="carlistmy">CarListMy</option>
+                    </select>
+                </div>
+            </div>
+
+            <table id="carsTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Brand</th>
+                        <th>Model</th>
+                        <th>Variant</th>
+                        <th>Price</th>
+                        <th>Millage</th>
+                        <th>Year</th>
+                        <th>Transmission</th>
+                        <th>Source</th>
+                        <th>Image</th>
+                        {% comment %} <th>Last Updated</th> {% endcomment %}
+                        <th>Listing</th>
+                    </tr>
+                </thead>
+            </table>
+        </main>
+    </div>
+</div>
+
+<!-- Modal Popup -->
+<div class="modal fade" id="rankingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hasil Ranking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="rankingMessage"></p>
+                <h6>Top 5 Listings</h6>
+                <table class="table" id="top5Table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>No</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Variant</th>
+                            <th>Price</th>
+                            <th>Millage</th>
+                            <th>Year</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <h6>Bottom 5 Listings</h6>
+                <table class="table" id="bottom5Table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>No</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Variant</th>
+                            <th>Price</th>
+                            <th>Millage</th>
+                            <th>Year</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $(document).ready(function () {
+        loadFilters();  // Panggil hanya sekali
+
+        let table = $('#carsTable').DataTable({
+            processing: true,
+            serverSide: true,
+            destroy: true,  // Ini memastikan DataTables tidak terinisialisasi dua kali
+            ajax: {
+                url: "{% url 'cars-list' %}",
+                data: function (d) {
+                    d.brand = $('#filterBrand').val();
+                    d.model = $('#filterModel').val();
+                    d.variant = $('#filterModel').val();
+                    d.source = $('#filterSource').val();
+                }
+            },
+            //order: [[4, "asc"]],
+            columns: [
+                { data: "id", orderable: true },
+                { data: "brand", orderable: true },
+                { data: "model", orderable: true },
+                { data: "variant", orderable: true },
+                {
+                    data: "price",
+                    type: "num", // Pastikan diurutkan sebagai angka
+                    orderable: true,
+                    render: function (data) {
+                        return `RM ${parseInt(data).toLocaleString()}`;
+                    }
+                },
+                {
+                    data: "millage",
+                    type: "num", // Pastikan diurutkan sebagai angka
+                    orderable: true,
+                    render: function (data) {
+                        return `${parseInt(data).toLocaleString()} km`;
+                    }
+                },
+                {
+                    data: "year",
+                    type: "num", // Pastikan diurutkan sebagai angka
+                    orderable: true,
+                    render: function (data) {
+                        return parseInt(data);
+                    }
+                },
+                { data: "transmission", orderable: true },
+                { data: "source", orderable: true },
+                {
+                    data: "image",
+                    orderable: false,
+                    render: function (data) {
+                        return data
+                            ? `<img src="${data}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;" alt="Car Image">`
+                            : "No Image";
+                    }
+                },
+                {
+                    data: "listing_url",
+                    orderable: false,
+                    render: function (data) {
+                        return `<a href="${data}" target="_blank" class="btn btn-sm btn-primary">View</a>`;
+                    }
+                }
+            ]
+        });
+
+        // Gunakan hanya reload, jangan inisialisasi ulang
+        $('#filterBrand, #filterModel, #filterSource').change(function () {
+            table.ajax.reload();
+        });
+    });
+
+    function loadFilters() {
+        // Load daftar brand dari tabel cars_brand
+        $.ajax({
+            url: "/api/brands/",
+            type: "GET",
+            success: function (response) {
+                let brandDropdown = $('#filterBrand');
+                brandDropdown.html('<option value="">All</option>'); 
+                response.brands.forEach(function (brand) {
+                    brandDropdown.append(`<option value="${brand}">${brand}</option>`);
+                });
+            }
+        });
+
+        // Saat Brand dipilih, load Model yang sesuai
+        $('#filterBrand').on('change', function () {
+            let selectedBrand = $(this).val();
+            let modelDropdown = $('#filterModel');
+            modelDropdown.html('<option value="">All</option>');
+
+            if (selectedBrand) {
+                $.ajax({
+                    url: "/api/models/",
+                    type: "GET",
+                    data: { brand: selectedBrand },
+                    success: function (response) {
+                        response.models.forEach(function (model) {
+                            modelDropdown.append(`<option value="${model}">${model}</option>`);
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>
+<script>
+    $(document).ready(function () {
+        loadRankingFilters();  // Pastikan fungsi ini dipanggil saat halaman dimuat
+
+        // Event listener untuk memilih brand di fitur ranking
+        $('#rankingBrand').on('change', function () {
+            let selectedBrand = $(this).val();
+            let modelDropdown = $('#rankingModel');
+            modelDropdown.html('<option value="">Select Model</option>'); // Reset model dropdown
+            modelDropdown.prop('disabled', true); // Nonaktifkan sementara
+            
+            if (selectedBrand) {
+                $.ajax({
+                    url: "/api/models/",
+                    type: "GET",
+                    data: { brand: selectedBrand },
+                    success: function (response) {
+                        if (response.models.length > 0) {
+                            response.models.forEach(function (model) {
+                                modelDropdown.append(`<option value="${model}">${model}</option>`);
+                            });
+                            modelDropdown.prop('disabled', false); // Aktifkan kembali jika ada data
+                        }
+                    }
+                });
+            }
+        });
+
+        // Event listener untuk saat form ranking disubmit
+    $("#rankingForm").submit(function (e) {
+        e.preventDefault();
+
+        // Ambil nilai input dari form
+        let brand = $("#rankingBrand").val();
+        let model = $("#rankingModel").val();
+        let price = $("#rankingPrice").val();
+        let millage = $("#rankingMillage").val();
+        let year = $("#rankingYear").val();
+        
+        // Karena variant tidak diinput, set variant sama dengan model
+        let variant = model;
+        
+        // Buat payload JSON
+        let data = {
+            brand: brand,
+            model: model,
+            variant: variant,
+            price: price,
+            millage: millage,
+            year: year
+        };
+
+        // Lakukan POST request ke endpoint ranking Anda
+        $.ajax({
+            url: "/price_rank/", // Pastikan URL ini sesuai dengan routing di Django
+            type: "POST",
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            success: function (response) {
+                // Tampilkan pesan ranking
+                $("#rankingMessage").text(response.message);
+
+                // Isi tabel Top 5
+                let top5TableBody = $("#top5Table tbody");
+                top5TableBody.empty();
+                response.top_5.forEach(function(item) {
+                    let row = `<tr>
+                        <td>${item.rank}</td>
+                        <td>${item.id}</td>
+                        <td>${item.brand}</td>
+                        <td>${item.model}</td>
+                        <td>${item.variant}</td>
+                        <td>RM ${parseInt(item.price).toLocaleString()}</td>
+                        <td>${parseInt(item.millage).toLocaleString()} KM</td>
+                        <td>${item.year}</td>
+                        <td>${item.source}</td>
+                    </tr>`;
+                    top5TableBody.append(row);
+                });
+
+                // Isi tabel Bottom 5
+                let bottom5TableBody = $("#bottom5Table tbody");
+                bottom5TableBody.empty();
+                response.bottom_5.forEach(function(item) {
+                    let row = `<tr>
+                        <td>${item.rank}</td>
+                        <td>${item.id}</td>
+                        <td>${item.brand}</td>
+                        <td>${item.model}</td>
+                        <td>${item.variant}</td>
+                        <td>RM ${parseInt(item.price).toLocaleString()}</td>
+                        <td>${parseInt(item.millage).toLocaleString()} KM</td>
+                        <td>${item.year}</td>
+                        <td>${item.source}</td>
+                    </tr>`;
+                    bottom5TableBody.append(row);
+                });
+
+                // Tampilkan modal popup
+                $("#rankingModal").modal("show");
+            },
+            error: function (xhr, status, error) {
+                alert("Terjadi kesalahan: " + error);
+            }
+        });
+    });
+    
+    // Fungsi untuk mengisi dropdown brand ranking (sesuai dengan kebutuhan Anda)
+    function loadRankingFilters() {
+        $.ajax({
+            url: "/api/brands/",
+            type: "GET",
+            success: function (response) {
+                let brandDropdown = $('#rankingBrand');
+                brandDropdown.html('<option value="">Select Brand</option>');
+                response.brands.forEach(function (brand) {
+                    brandDropdown.append(`<option value="${brand}">${brand}</option>`);
+                });
+            }
+        });
+    }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+    
+        // Tombol Sync Mudahmy
+        $("#btnSyncMudahmy").click(function() {
+            $.ajax({
+                url: "/sync_mudahmy/",
+                type: "GET",
+                success: function(response) {
+                    // Tampilkan pesan sukses
+                    alert(response.message);
+                },
+                error: function(xhr, status, error) {
+                    alert("Terjadi kesalahan saat sinkronisasi: " + error);
+                }
+            });
+        });
+    
+        // Tombol Sync Carlist
+        $("#btnSyncCarlist").click(function() {
+            $.ajax({
+                url: "/sync_carlist/",
+                type: "GET",
+                success: function(response) {
+                    alert(response.message);
+                },
+                error: function(xhr, status, error) {
+                    alert("Terjadi kesalahan saat sinkronisasi: " + error);
+                }
+            });
+        });
+    
+    });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Buat koneksi WebSocket ke path "ws/sync-status/"
+            // Jika Anda pakai HTTPS, gunakan "wss://" 
+            const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsPath = wsProtocol + '//' + window.location.host + '/ws/sync-status/';
+            const syncSocket = new WebSocket(wsPath);
+        
+            syncSocket.onopen = function(e) {
+                console.log("WebSocket connected.");
+            };
+        
+            syncSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                // data.message adalah string "Sync MudahMy selesai..." dsb
+                alert("Notifikasi: " + data.message);
+                // Atau Anda bisa menampilkan di element HTML, dsb.
+                // Contoh: document.getElementById("notifArea").innerText = data.message;
+            };
+        
+            syncSocket.onerror = function(e) {
+                console.error("WebSocket error:", e);
+            };
+        
+            syncSocket.onclose = function(e) {
+                console.log("WebSocket closed:", e);
+            };
+        });
+        </script>
+{% endblock %}
