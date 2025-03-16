@@ -25,6 +25,7 @@
 
 
 {% load static %}
+<nav class="sidenav navbar navbar-vertical fixed-left navbar-expand-xs navbar-light bg-white" id="sidenav-main">
 <div class="scrollbar-inner">
     <!-- Brand -->
     <div class="sidenav-header d-flex align-items-center">
@@ -53,13 +54,14 @@
               <span class="nav-link-text">Dashboards</span>
             </a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="../../pages/calendar.html">
-              <i class="ni ni-calendar-grid-58 text-red"></i>
-              <span class="nav-link-text">Calendar</span>
-            </a>
-          </li>
         </ul>
+        <!-- Bagian paling bawah untuk tombol Sync -->
+        <div class="mt-auto p-3 d-none d-lg-block">
+          <label class="d-block text-muted mb-1">Data Sync</label>
+          <button class="btn btn-sm btn-success w-100 mt-2" id="btnSyncMudahmy">Sync Mudahmy</button>
+          <button class="btn btn-sm btn-success w-100 mt-2" id="btnSyncCarlist">Sync Carlist</button>
+        </div>
       </div>
     </div>
   </div>
+</nav>

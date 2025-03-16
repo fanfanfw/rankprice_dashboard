@@ -2,12 +2,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
     <title>{% block title %}Dashboard{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <!-- Fonts -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
-
     <!-- Icons -->
     <link rel="stylesheet" href="{% static 'assets/vendor/nucleo/css/nucleo.css' %}" type="text/css">
     <link rel="stylesheet" href="{% static 'assets/vendor/@fortawesome/fontawesome-free/css/all.min.css' %}" type="text/css">
@@ -50,6 +49,20 @@
     <nav class="navbar navbar-top navbar-expand navbar-dark bg-primary border-bottom">
         <div class="container-fluid">
           <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav d-xl-none">
+              <li class="nav-item">
+                <!-- Toggler khusus mobile -->
+                <div class="pr-3 sidenav-toggler sidenav-toggler-dark" 
+                     data-action="sidenav-pin" 
+                     data-target="#sidenav-main">
+                  <div class="sidenav-toggler-inner">
+                    <i class="sidenav-toggler-line"></i>
+                    <i class="sidenav-toggler-line"></i>
+                    <i class="sidenav-toggler-line"></i>
+                  </div>
+                </div>
+              </li>
+            </ul>            
             <!-- Navbar links -->
             <ul class="navbar-nav align-items-center ml-auto">
                 <li class="nav-item dropdown">
