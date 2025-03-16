@@ -27,21 +27,26 @@ def parse_millage(millage_str: str) -> int or None:
     Mengambil nilai tertinggi dari string millage seperti:
       - '100k - 109k' -> 109000
       - '40 - 45K km' -> 45000
+      - '<4k'       -> 4000
+      - '<8k'       -> 8000
     Jika gagal parse, return None.
     """
     if not millage_str:
         return None
 
-    # Split dengan '-', ambil bagian terakhir (nilai tertinggi)
-    last_part = millage_str.split('-')[-1].lower().strip()
-    # Hilangkan 'km'
-    last_part = last_part.replace('km', '').strip()
-    # Hilangkan spasi
+    # Ubah ke lowercase dan buang spasi serta 'km'
+    millage_str = millage_str.lower().strip()
+    millage_str = millage_str.replace('km', '').strip()
+
+    # Split berdasarkan '-' dan ambil bagian terakhir (nilai tertinggi)
+    last_part = millage_str.split('-')[-1].strip()
     last_part = last_part.replace(' ', '')
 
-    # Jika mengandung 'k', hilangkan 'k' lalu multiply 1000
-    # Contoh: '109k' -> '109' -> 109000
-    #         '45k'  -> '45'  -> 45000
+    # Jika ada tanda '<' di awal, hilangkan tanda tersebut
+    if last_part.startswith('<'):
+        last_part = last_part[1:].strip()
+
+    # Jika mengandung 'k', hilangkan 'k' lalu kalikan dengan 1000
     if 'k' in last_part:
         last_part = last_part.replace('k', '')
         try:
@@ -50,7 +55,6 @@ def parse_millage(millage_str: str) -> int or None:
         except:
             return None
     else:
-        # Tanpa 'k', langsung parse integer
         try:
             return int(last_part)
         except:

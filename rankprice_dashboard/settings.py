@@ -70,6 +70,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/dashboard/'  
+LOGOUT_REDIRECT_URL = '/login/'     
+
 ROOT_URLCONF = 'rankprice_dashboard.urls'
 
 TEMPLATES = [
@@ -105,10 +109,10 @@ DATABASES = {
     },
     'mudahmy_db': {  # Database server "mudahmy"
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'scrap_test2',
-        'USER': 'fanfan',
+        'NAME': 'scrap_mudahmy',
+        'USER': 'funfun',
         'PASSWORD': 'cenanun',
-        'HOST': 'localhost',  # atau IP / hostname lain
+        'HOST': '47.236.125.23',  # atau IP / hostname lain
         'PORT': '5432',
     },
     'carlistmy_db': {  # Database server "carlistmy"
@@ -155,7 +159,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

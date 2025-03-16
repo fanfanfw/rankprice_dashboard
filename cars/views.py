@@ -1,7 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.db import connection
-import json
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
 from .models import Car
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -10,6 +10,8 @@ from .models import CarBrand
 from django.db.models import IntegerField
 from django.db.models.functions import Cast
 from .tasks import sync_mudahmy_to_main, sync_carlistmy_to_main
+from django.contrib.auth.decorators import login_required
+import json
 
 @csrf_exempt
 def get_price_rank(request):
@@ -167,9 +169,11 @@ ranked_cars AS (
     return JsonResponse(response_data, json_dumps_params={'indent': 4})
 
 
-def index(request):
-    return render(request, "rank_check.html")
+@login_required
+def cek_ranking(request):
+    return render(request, 'rank_check.html')
 
+@login_required
 def dashboard(request):
     """Tampilkan dashboard"""
     return render(request, 'dashboard.html')
@@ -338,3 +342,25 @@ def start_sync_carlist(request):
         "message": "Sync Carlist started. Silakan cek logs atau Celery monitoring.",
         "task_id": task_result.id
     })
+
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('dashboard')
+        else:
+            return render(request, 'login.html', {"error": "Invalid credentials"})
+    else:
+        return render(request, 'login.html')
+    
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+@login_required
+def test(request):
+    return render(request, 'test.html')

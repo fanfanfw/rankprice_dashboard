@@ -21,10 +21,6 @@
                 <label for="model" class="form-label">Model</label>
                 <input type="text" class="form-control" id="model" required>
             </div>
-            <div class="col-md-4">
-                <label for="variant" class="form-label">Variant</label>
-                <input type="text" class="form-control" id="variant" required>
-            </div>
         </div>
 
         <div class="row mt-3">
@@ -144,3 +140,53 @@
 
 </body>
 </html>
+
+
+{% comment %} <!-- Modal Popup -->
+<div class="modal fade" id="rankingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hasil Ranking</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="rankingMessage"></p>
+                <h6>Top 5 Listings</h6>
+                <table class="table" id="top5Table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>No</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Variant</th>
+                            <th>Price</th>
+                            <th>Millage</th>
+                            <th>Year</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <h6>Bottom 5 Listings</h6>
+                <table class="table" id="bottom5Table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>No</th>
+                            <th>Brand</th>
+                            <th>Model</th>
+                            <th>Variant</th>
+                            <th>Price</th>
+                            <th>Millage</th>
+                            <th>Year</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
